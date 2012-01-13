@@ -13,6 +13,7 @@
 
 
 GLuint shader;
+GLint MVPMatrixLocation;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Window has changed size, or has just been created. In either case, we need
@@ -35,7 +36,11 @@ void SetupRC() {
             2, GLT_ATTRIBUTE_VERTEX, "vVertex", GLT_ATTRIBUTE_COLOR, "vColor");
     fprintf(stdout, "GLT_ATTRIBUTE_VERTEX : %d\nGLT_ATTRIBUTE_COLOR : %d \n",
             GLT_ATTRIBUTE_VERTEX, GLT_ATTRIBUTE_COLOR);
-
+	MVPMatrixLocation=glGetUniformLocation(shader,"MVPMatrix");
+	if(MVPMatrixLocation==-1)
+	{
+		fprintf(stderr,"uniform MVPMatrix could not be found\n");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,8 +50,9 @@ void RenderScene(void) {
     // Clear the window with current clearing color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-   
+	float matrix[16] = {1,0,0,0,0,1,0,0,0,0,1,0,0,0,-2,1};
     glUseProgram(shader);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrix);
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);
@@ -59,7 +65,7 @@ void RenderScene(void) {
 		glVertex3f(-1.0f, 1.0f, 0.0f);
  		glVertex3f(0.0f, 0.0f, 2.0f);
  		glVertex3f(1.0f, 1.0f, 0.0f);
-	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 0.0f, 1.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 0.0f, 0.8f);
 		glVertex3f(-1.0f, -1.0f, 0.0f);
  		glVertex3f(0.0f, 0.0f, 2.0f);
  		glVertex3f(-1.0f, 1.0f, 0.0f);

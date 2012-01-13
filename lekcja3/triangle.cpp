@@ -31,7 +31,7 @@ void SetupRC() {
     // Blue background
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 
-    shader = gltLoadShaderPairWithAttributes("shader.vp", "shader.fp",
+    shader = gltLoadShaderPairWithAttributes("pass_thru_shader.vp", "pass_thru_shader.fp",
             2, GLT_ATTRIBUTE_VERTEX, "vVertex", GLT_ATTRIBUTE_COLOR, "vColor");
     fprintf(stdout, "GLT_ATTRIBUTE_VERTEX : %d\nGLT_ATTRIBUTE_COLOR : %d \n",
             GLT_ATTRIBUTE_VERTEX, GLT_ATTRIBUTE_COLOR);

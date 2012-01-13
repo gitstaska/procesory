@@ -47,12 +47,30 @@ void RenderScene(void) {
 
    
     glUseProgram(shader);
-
+	glBegin(GL_QUADS);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
+		glVertex3f(-1.0f,-1.0f,0.0f);
+		glVertex3f(-1.0f,1.0f,0.0f);
+		glVertex3f(1.0f,1.0f,0.0f);
+		glVertex3f(1.0f,-1.0f,0.0f);
+	glEnd();
     glBegin(GL_TRIANGLES);
-    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 1.0, 0.0, 0.0);
-    glVertex3f(-0.5f, 0.0f, 2.0f);
-    glVertex3f(0.5f, 0.0f, 1.0);
-    glVertex3f(0.0f, 0.5f, -4.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 1.0f, 1.0f, 0.0f);
+		glVertex3f(-1.0f, 1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(1.0f, 1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 0.0f, 1.0f);
+		glVertex3f(-1.0f, -1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(-1.0f, 1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 1.0f, 0.0f);
+		glVertex3f(1.0f, -1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(-1.0f, -1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+		glVertex3f(1.0f, 1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
 
     // Perform the buffer swap to display back buffer

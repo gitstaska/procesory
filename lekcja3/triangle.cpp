@@ -4,6 +4,7 @@
 #include <GLTools.h>            // OpenGL toolkit
 #include <GLFrame.h>
 #include <GLFrustum.h>
+#include <StopWatch.h>
 
 #ifdef __APPLE__
 #include <glut/glut.h>          // OS X version of GLUT
@@ -45,6 +46,7 @@ void SetupRC() {
 	{
 		fprintf(stderr,"uniform MVPMatrix could not be found\n");
 	}
+	glEnable(GL_DEPTH_TEST);
 }
 
 void SetUpFrame(GLFrame &frame,const M3DVector3f origin,
@@ -71,13 +73,21 @@ void LookAt( GLFrame &frame,const M3DVector3f eye,
 
 void RenderScene(void) {
     // Clear the window with current clearing color
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	CStopWatch timer;
+	timer.Reset();
+	for(;;)
+	{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	M3DMatrix44f mCamera;
 	const float* mProjection = frustum.GetProjectionMatrix();
-	M3DVector3f at = {0.0f,0.0f,0.0f};
-	M3DVector3f eye = {0.0f,-6.0f,9.0f};
-	M3DVector3f up = {0.0f,1.0f,0.0f};
-	LookAt(frame,eye,at,up);	
+	M3DVector3f at={0,0,0};
+	M3DVector3f up={0,0,1};
+	M3DVector3f eye;
+	float angle=timer.GetElapsedSeconds()*3.14f;
+	eye[0]=6.8f*cos(angle);
+	eye[1]=6.0f*sin(angle);
+	eye[2]=5.0f; 
+	LookAt(frame,eye,at,up);
 	frame.GetCameraMatrix(mCamera);
 	M3DMatrix44f ViewProjectionMatrix;
 	m3dMatrixMultiply44(ViewProjectionMatrix,mProjection,mCamera);
@@ -111,6 +121,8 @@ void RenderScene(void) {
 
     // Perform the buffer swap to display back buffer
     glutSwapBuffers();
+	Sleep(30);
+	}
 }
 
 

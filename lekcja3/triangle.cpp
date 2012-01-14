@@ -103,6 +103,11 @@ void RenderScene(void) {
 			glVertex3f(10.0f,i,0);
 		}
 	glEnd();
+	M3DMatrix44f mM;
+    m3dTranslationMatrix44(mM,0.0f,0.0f,-1.0f);
+	M3DMatrix44f mMVP;
+	m3dMatrixMultiply44(mMVP,ViewProjectionMatrix,mM);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,mMVP);
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);

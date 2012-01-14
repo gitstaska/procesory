@@ -93,6 +93,16 @@ void RenderScene(void) {
 	m3dMatrixMultiply44(ViewProjectionMatrix,mProjection,mCamera);
     glUseProgram(shader);
 	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,ViewProjectionMatrix);
+	glBegin(GL_LINES);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
+		for (int i=-10; i<=10; i++)
+		{
+			glVertex3f(i,-10.0f,0);
+			glVertex3f(i,10.0f,0);
+			glVertex3f(-10.0f,i,0);
+			glVertex3f(10.0f,i,0);
+		}
+	glEnd();
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);

@@ -25,7 +25,7 @@ GLFrustum frustum;
 
 void ChangeSize(int w, int h) {
     glViewport(0, 0, w, h);
-	frustum.SetPerspective(45.0f,w/h,5,20);
+	frustum.SetPerspective(45.0f,w/h,25,100);
 }
 
 
@@ -84,9 +84,9 @@ void RenderScene(void) {
 	M3DVector3f up={0,0,1};
 	M3DVector3f eye;
 	float angle=timer.GetElapsedSeconds()*3.14f;
-	eye[0]=6.8f*cos(angle);
-	eye[1]=6.0f*sin(angle);
-	eye[2]=5.0f; 
+	eye[0]=40*cos(angle);
+	eye[1]=40*sin(angle);
+	eye[2]=30.0f; 
 	LookAt(frame,eye,at,up);
 	frame.GetCameraMatrix(mCamera);
 	M3DMatrix44f ViewProjectionMatrix;
@@ -104,7 +104,7 @@ void RenderScene(void) {
 		}
 	glEnd();
 	M3DMatrix44f mM;
-    m3dTranslationMatrix44(mM,0.0f,0.0f,-1.0f);
+    m3dTranslationMatrix44(mM,10.0f,0.0f,-1.0f);
 	M3DMatrix44f mMVP;
 	m3dMatrixMultiply44(mMVP,ViewProjectionMatrix,mM);
 	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,mMVP);
@@ -133,8 +133,40 @@ void RenderScene(void) {
  		glVertex3f(0.0f, 0.0f, 2.0f);
  		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
+	M3DMatrix44f mT;
+	m3dTranslationMatrix44(mT,1.0f,7.0f,0.0f);
+	M3DMatrix44f mR;
+	m3dRotationMatrix44(mR,45.0f,0.0,0.0,1.0);
 
-    // Perform the buffer swap to display back buffer
+	m3dMatrixMultiply44(mM,mT,mR);
+	m3dMatrixMultiply44(mMVP,ViewProjectionMatrix,mM);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,mMVP);
+	glBegin(GL_QUADS);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
+		glVertex3f(-1.0f,-1.0f,0.0f);
+		glVertex3f(-1.0f,1.0f,0.0f);
+		glVertex3f(1.0f,1.0f,0.0f);
+		glVertex3f(1.0f,-1.0f,0.0f);
+	glEnd();
+    glBegin(GL_TRIANGLES);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 1.0f, 1.0f, 0.0f);
+		glVertex3f(-1.0f, 1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(1.0f, 1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 0.0f, 0.8f);
+		glVertex3f(-1.0f, -1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(-1.0f, 1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.0f, 1.0f, 0.0f);
+		glVertex3f(1.0f, -1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(-1.0f, -1.0f, 0.0f);
+	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 1.0f, 0.0f, 0.0f);
+		glVertex3f(1.0f, 1.0f, 0.0f);
+ 		glVertex3f(0.0f, 0.0f, 2.0f);
+ 		glVertex3f(1.0f, -1.0f, 0.0f);
+    glEnd();
+
     glutSwapBuffers();
 	Sleep(30);
 	}

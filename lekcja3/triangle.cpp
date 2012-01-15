@@ -5,6 +5,7 @@
 #include <GLFrame.h>
 #include <GLFrustum.h>
 #include <StopWatch.h>
+#include <GLMatrixStack.h>
 
 #ifdef __APPLE__
 #include <glut/glut.h>          // OS X version of GLUT
@@ -13,6 +14,7 @@
 #include <GL/glut.h>            // Windows FreeGlut equivalent
 #endif
 
+CStopWatch timer;
 
 GLuint shader;
 GLint MVPMatrixLocation;
@@ -37,6 +39,7 @@ void SetupRC() {
     // Blue background
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 
+//	timer.Reset();
     shader = gltLoadShaderPairWithAttributes("pass_thru_shader.vp", "pass_thru_shader.fp",
             2, GLT_ATTRIBUTE_VERTEX, "vVertex", GLT_ATTRIBUTE_COLOR, "vColor");
     fprintf(stdout, "GLT_ATTRIBUTE_VERTEX : %d\nGLT_ATTRIBUTE_COLOR : %d \n",
@@ -72,14 +75,12 @@ void LookAt( GLFrame &frame,const M3DVector3f eye,
 // Called to draw scene
 
 void RenderScene(void) {
-    // Clear the window with current clearing color
-	CStopWatch timer;
-	timer.Reset();
-	for(;;)
-	{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	M3DMatrix44f mCamera;
-	const float* mProjection = frustum.GetProjectionMatrix();
+	glUseProgram(shader);
+	GLMatrixStack matrixStack;
+	matrixStack.PushMatrix();
+	matrixStack.LoadMatrix(frustum.GetProjectionMatrix());
 	M3DVector3f at={0,0,0};
 	M3DVector3f up={0,0,1};
 	M3DVector3f eye;
@@ -89,10 +90,10 @@ void RenderScene(void) {
 	eye[2]=30.0f; 
 	LookAt(frame,eye,at,up);
 	frame.GetCameraMatrix(mCamera);
-	M3DMatrix44f ViewProjectionMatrix;
-	m3dMatrixMultiply44(ViewProjectionMatrix,mProjection,mCamera);
-    glUseProgram(shader);
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,ViewProjectionMatrix);
+	matrixStack.MultMatrix(mCamera);
+	matrixStack.PushMatrix();
+
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
 	glBegin(GL_LINES);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		for (int i=-10; i<=10; i++)
@@ -103,11 +104,8 @@ void RenderScene(void) {
 			glVertex3f(10.0f,i,0);
 		}
 	glEnd();
-	M3DMatrix44f mM;
-    m3dTranslationMatrix44(mM,10.0f,0.0f,-1.0f);
-	M3DMatrix44f mMVP;
-	m3dMatrixMultiply44(mMVP,ViewProjectionMatrix,mM);
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,mMVP);
+	matrixStack.Translate(10.0f,1.0f,0.0f);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);
@@ -133,14 +131,10 @@ void RenderScene(void) {
  		glVertex3f(0.0f, 0.0f, 2.0f);
  		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
-	M3DMatrix44f mT;
-	m3dTranslationMatrix44(mT,1.0f,7.0f,0.0f);
-	M3DMatrix44f mR;
-	m3dRotationMatrix44(mR,45.0f,0.0,0.0,1.0);
-
-	m3dMatrixMultiply44(mM,mT,mR);
-	m3dMatrixMultiply44(mMVP,ViewProjectionMatrix,mM);
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,mMVP);
+	matrixStack.PopMatrix();
+	matrixStack.Rotate(45.0,0,0,1);
+	matrixStack.Translate(0.0,0.0,1.0);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);
@@ -167,9 +161,10 @@ void RenderScene(void) {
  		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
 
+	matrixStack.PopMatrix();
+	matrixStack.PopMatrix();
     glutSwapBuffers();
-	Sleep(30);
-	}
+	glutPostRedisplay();
 }
 
 

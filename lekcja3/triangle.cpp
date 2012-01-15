@@ -6,6 +6,7 @@
 #include <GLFrustum.h>
 #include <StopWatch.h>
 #include <GLMatrixStack.h>
+#include <GLGeometryTransform.h>
 
 #ifdef __APPLE__
 #include <glut/glut.h>          // OS X version of GLUT
@@ -76,11 +77,11 @@ void LookAt( GLFrame &frame,const M3DVector3f eye,
 
 void RenderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	M3DMatrix44f mCamera;
 	glUseProgram(shader);
-	GLMatrixStack matrixStack;
-	matrixStack.PushMatrix();
-	matrixStack.LoadMatrix(frustum.GetProjectionMatrix());
+	GLMatrixStack modelView;
+	GLMatrixStack projection;
+	GLGeometryTransform geometryPipeline;
+	geometryPipeline.SetMatrixStacks(modelView,projection);
 	M3DVector3f at={0,0,0};
 	M3DVector3f up={0,0,1};
 	M3DVector3f eye;
@@ -89,11 +90,14 @@ void RenderScene(void) {
 	eye[1]=40*sin(angle);
 	eye[2]=30.0f; 
 	LookAt(frame,eye,at,up);
+	projection.LoadMatrix(frustum.GetProjectionMatrix());
+	modelView.PushMatrix();
+	M3DMatrix44f mCamera;
 	frame.GetCameraMatrix(mCamera);
-	matrixStack.MultMatrix(mCamera);
-	matrixStack.PushMatrix();
+	modelView.LoadMatrix(mCamera);
+	modelView.PushMatrix();
 
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,geometryPipeline.GetModelViewProjectionMatrix());
 	glBegin(GL_LINES);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		for (int i=-10; i<=10; i++)
@@ -104,8 +108,8 @@ void RenderScene(void) {
 			glVertex3f(10.0f,i,0);
 		}
 	glEnd();
-	matrixStack.Translate(10.0f,1.0f,0.0f);
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
+	modelView.Translate(10.0f,1.0f,0.0f);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,geometryPipeline.GetModelViewProjectionMatrix());
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);
@@ -131,10 +135,10 @@ void RenderScene(void) {
  		glVertex3f(0.0f, 0.0f, 2.0f);
  		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
-	matrixStack.PopMatrix();
-	matrixStack.Rotate(45.0,0,0,1);
-	matrixStack.Translate(0.0,0.0,1.0);
-	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,matrixStack.GetMatrix());
+	modelView.PopMatrix();
+	modelView.Rotate(45.0,0,0,1);
+	modelView.Translate(0.0,0.0,1.0);
+	glUniformMatrix4fv(MVPMatrixLocation,1,GL_FALSE,geometryPipeline.GetModelViewProjectionMatrix());
 	glBegin(GL_QUADS);
 	    glVertexAttrib3f(GLT_ATTRIBUTE_COLOR, 0.5f, 0.5f, 0.5f);
 		glVertex3f(-1.0f,-1.0f,0.0f);
@@ -161,8 +165,8 @@ void RenderScene(void) {
  		glVertex3f(1.0f, -1.0f, 0.0f);
     glEnd();
 
-	matrixStack.PopMatrix();
-	matrixStack.PopMatrix();
+	modelView.PopMatrix();
+	modelView.PopMatrix();
     glutSwapBuffers();
 	glutPostRedisplay();
 }
